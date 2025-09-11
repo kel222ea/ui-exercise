@@ -263,6 +263,7 @@ export const AdditionalPackages: React.FunctionComponent = () => {
   const [addedRecommendations, setAddedRecommendations] = React.useState<Set<string>>(new Set());
   const [showRecommendations, setShowRecommendations] = React.useState(true);
   const [showSearchRecommendations, setShowSearchRecommendations] = React.useState(false);
+  const [obscurePackageNames, setObscurePackageNames] = React.useState(false);
 
   // Computed values for packages
   const selectedCount = selectedPackages.size;
@@ -583,6 +584,21 @@ export const AdditionalPackages: React.FunctionComponent = () => {
 
   const handleStepChange = (stepId: string) => {
     setActiveStep(stepId);
+  };
+
+  // Helper function to get display name for packages
+  const getPackageDisplayName = (pkg: Package) => {
+    if (obscurePackageNames) {
+      // When obscuring is enabled, show generic names based on selection status
+      if (selectedPackages.has(pkg.name)) {
+        return 'Selected Package';
+      } else {
+        return 'Available Package';
+      }
+    } else {
+      // When obscuring is disabled, show actual package names
+      return pkg.name;
+    }
   };
 
   const onSetPage = (_event: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<Element>, newPage: number) => {
@@ -1027,7 +1043,7 @@ export const AdditionalPackages: React.FunctionComponent = () => {
                           </div>
                           <div style={{ flex: 1 }}>
                             <div style={{ fontWeight: '600', marginBottom: '2px' }}>
-                              {pkg.name} - {pkg.summary}
+                              {getPackageDisplayName(pkg)} - {pkg.summary}
                             </div>
                           </div>
                           <span style={{ 
@@ -1070,7 +1086,7 @@ export const AdditionalPackages: React.FunctionComponent = () => {
                       }}
                     >
                       <div>
-                        <strong>{pkg.name}</strong>
+                        <strong>{getPackageDisplayName(pkg)}</strong>
                         <br />
                         <small style={{ color: '#666' }}>{pkg.summary}</small>
                       </div>
@@ -1189,7 +1205,7 @@ export const AdditionalPackages: React.FunctionComponent = () => {
                     />
                   </Td>
                     )}
-                    <Td>{pkg.name}</Td>
+                    <Td>{getPackageDisplayName(pkg)}</Td>
                     <Td>{pkg.source}</Td>
                     <Td>{pkg.summary}</Td>
                     {!enableCheckboxes && (
@@ -1271,7 +1287,7 @@ export const AdditionalPackages: React.FunctionComponent = () => {
                 <Tbody>
                   {currentRecommendations.map((pkg) => (
                     <Tr key={pkg.name}>
-                      <Td>{pkg.name}</Td>
+                      <Td>{getPackageDisplayName(pkg)}</Td>
                       <Td>{pkg.source}</Td>
                       <Td>{pkg.summary}</Td>
                       <Td>
@@ -1550,6 +1566,37 @@ export const AdditionalPackages: React.FunctionComponent = () => {
                 </div>
                 <label htmlFor="toggle-recommendations" style={{ fontSize: '14px', fontWeight: '500', cursor: 'pointer' }}>
                   Package Recommendations
+                </label>
+              </div>
+
+              {/* Obscure Package Names Toggle */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div
+                  style={{
+                    width: '44px',
+                    height: '24px',
+                    backgroundColor: obscurePackageNames ? '#0066cc' : '#ccc',
+                    borderRadius: '12px',
+                    position: 'relative',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s ease'
+                  }}
+                  onClick={() => setObscurePackageNames(!obscurePackageNames)}
+                >
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    backgroundColor: 'white',
+                    borderRadius: '50%',
+                    position: 'absolute',
+                    top: '2px',
+                    left: obscurePackageNames ? '22px' : '2px',
+                    transition: 'left 0.2s ease',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                  }} />
+                </div>
+                <label htmlFor="toggle-obscure-names" style={{ fontSize: '14px', fontWeight: '500', cursor: 'pointer' }}>
+                  Obscure Package Names
                 </label>
               </div>
             </div>
