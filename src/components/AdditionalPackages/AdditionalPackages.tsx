@@ -310,6 +310,13 @@ export const AdditionalPackages: React.FunctionComponent = () => {
 
   // Filter packages for main table
   const filteredPackages = React.useMemo(() => {
+    console.log('🔍 Package Filtering Debug:', {
+      toggleSelected,
+      searchTerm,
+      activeTabKey,
+      selectedPackages: Array.from(selectedPackages),
+      selectedPackagesSize: selectedPackages.size
+    });
     // When searching in other repos, show selected packages from both repositories
     if (searchingInOtherRepos) {
       const allPackages = [...includedRepoPackages, ...otherRepoPackages];
@@ -331,19 +338,25 @@ export const AdditionalPackages: React.FunctionComponent = () => {
       return sourcePackages.filter(pkg => selectedPackages.has(pkg.name));
     } else {
       // When searchInDropdown is disabled, use original behavior
-      let filtered = sourcePackages.filter(pkg => {
-        const nameMatch = pkg.name.toLowerCase().startsWith(searchTerm.toLowerCase());
-        return nameMatch;
-      });
+      let filtered = sourcePackages;
       
-      // Apply toggle filtering only if there's no search term
-      if (toggleSelected === 'toggle-selected' && !searchTerm) {
+      // Apply toggle filtering first
+      if (toggleSelected === 'toggle-selected') {
         filtered = filtered.filter(pkg => selectedPackages.has(pkg.name));
         if (!hasViewedPackagesSelected) {
           setHasViewedPackagesSelected(true);
         }
       }
       
+      // Then apply search term filtering to the filtered results
+      if (searchTerm) {
+        filtered = filtered.filter(pkg => {
+          const nameMatch = pkg.name.toLowerCase().startsWith(searchTerm.toLowerCase());
+          return nameMatch;
+        });
+      }
+      
+      console.log('📦 Final filtered packages:', filtered.map(pkg => pkg.name));
       return filtered;
     }
   }, [searchTerm, activeTabKey, searchInDropdown, toggleSelected, selectedPackages, hasViewedPackagesSelected, searchingInOtherRepos]);
@@ -395,20 +408,20 @@ export const AdditionalPackages: React.FunctionComponent = () => {
         filtered = filtered.filter(repo => selectedRepositories.has(repo.id));
       } else {
         // When checkboxes are enabled, use original behavior
-        // Apply search term filtering to table
-        if (searchTerm) {
-          filtered = filtered.filter(repo => 
-            repo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            repo.url.toLowerCase().includes(searchTerm.toLowerCase())
-          );
-        }
-        
-        // Apply toggle filtering
+        // Apply toggle filtering first
         if (reposToggleSelected === 'toggle-repos-selected') {
           filtered = filtered.filter(repo => selectedRepositories.has(repo.id));
           if (!hasViewedReposSelected) {
             setHasViewedReposSelected(true);
           }
+        }
+        
+        // Then apply search term filtering to the filtered results
+        if (searchTerm) {
+          filtered = filtered.filter(repo => 
+            repo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+            repo.url.toLowerCase().includes(searchTerm.toLowerCase())
+          );
         }
       }
     }
