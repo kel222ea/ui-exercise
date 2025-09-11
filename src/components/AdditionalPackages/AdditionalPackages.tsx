@@ -284,11 +284,13 @@ export const AdditionalPackages: React.FunctionComponent = () => {
   React.useEffect(() => {
     const availableCount = totalAvailableItems - selectedCount;
     const filteredAvailableCount = filteredPackages.filter(pkg => !selectedPackages.has(pkg.name)).length;
+    const uiAvailableCount = searchTerm ? includedRepoPackages.filter(pkg => !selectedPackages.has(pkg.name) && pkg.name.toLowerCase().startsWith(searchTerm.toLowerCase())).length : availableCount;
     console.log('📊 Available packages counter debug:', {
       totalAvailableItems,
       selectedCount,
       calculatedAvailableCount: availableCount,
       filteredAvailableCount,
+      uiAvailableCount,
       filteredPackagesTotal: filteredPackages.length,
       hasViewedPackagesSelected,
       toggleSelected,
@@ -1191,7 +1193,7 @@ export const AdditionalPackages: React.FunctionComponent = () => {
           {enableToggles && !searchInDropdown && (
           <ToggleGroup>
             <ToggleGroupItem
-                text={`Available${searchTerm && filteredPackages.length > 0 ? (hasViewedPackagesSelected ? ` (${filteredPackages.filter(pkg => !selectedPackages.has(pkg.name)).length})` : ` (${filteredPackages.length})`) : ''}`}
+                text={`Available${searchTerm ? ` (${includedRepoPackages.filter(pkg => !selectedPackages.has(pkg.name) && pkg.name.toLowerCase().startsWith(searchTerm.toLowerCase())).length})` : ''}`}
               buttonId="toggle-available"
               isSelected={toggleSelected === 'toggle-available'}
                 onChange={() => handleAvailableToggle()}
