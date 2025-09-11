@@ -240,6 +240,14 @@ export const AdditionalPackages: React.FunctionComponent = () => {
   const [page, setPage] = React.useState(1);
   const [perPage, setPerPage] = React.useState(10);
   const [selectedPackages, setSelectedPackages] = React.useState<Set<string>>(new Set(['Selected Package 1', 'Selected Package 2', 'Selected Package 3', 'Selected Package 4']));
+  
+  // Debug: Track changes to selectedPackages
+  React.useEffect(() => {
+    console.log('🎯 selectedPackages changed:', {
+      size: selectedPackages.size,
+      packages: Array.from(selectedPackages)
+    });
+  }, [selectedPackages]);
   const [activeTabKey, setActiveTabKey] = React.useState('included-repos');
   const [hasViewedSelected, setHasViewedSelected] = React.useState(false);
   const [hasViewedPackagesSelected, setHasViewedPackagesSelected] = React.useState(false);
@@ -486,12 +494,17 @@ export const AdditionalPackages: React.FunctionComponent = () => {
   const handlePackageSelect = (event: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<Element>, selected: boolean) => {
     const packageName = event.currentTarget.getAttribute('data-package-name');
     if (packageName) {
+      console.log('☑️ Package select:', packageName, 'selected:', selected);
+      console.log('📋 Current selectedPackages before select:', Array.from(selectedPackages));
+      
       const newSelected = new Set(selectedPackages);
       if (selected) {
         newSelected.add(packageName);
       } else {
         newSelected.delete(packageName);
       }
+      
+      console.log('📋 New selectedPackages after select:', Array.from(newSelected));
       setSelectedPackages(newSelected);
     }
   };
@@ -571,9 +584,14 @@ export const AdditionalPackages: React.FunctionComponent = () => {
   };
 
   const handleAddPackage = (pkg: Package) => {
+    console.log('➕ Adding package:', pkg.name);
+    console.log('📋 Current selectedPackages before add:', Array.from(selectedPackages));
+    
     // Add package to selected set
     const newSelected = new Set(selectedPackages);
     newSelected.add(pkg.name);
+    
+    console.log('📋 New selectedPackages after add:', Array.from(newSelected));
     setSelectedPackages(newSelected);
     
     // Track that this recommendation was added
