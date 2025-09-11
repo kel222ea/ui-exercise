@@ -284,7 +284,7 @@ export const AdditionalPackages: React.FunctionComponent = () => {
   React.useEffect(() => {
     const availableCount = totalAvailableItems - selectedCount;
     const filteredAvailableCount = filteredPackages.filter(pkg => !selectedPackages.has(pkg.name)).length;
-    const uiAvailableCount = searchTerm ? includedRepoPackages.filter(pkg => !selectedPackages.has(pkg.name) && pkg.name.toLowerCase().startsWith(searchTerm.toLowerCase())).length : availableCount;
+    const uiAvailableCount = searchTerm ? includedRepoPackages.filter(pkg => (!hasViewedPackagesSelected || !selectedPackages.has(pkg.name)) && pkg.name.toLowerCase().startsWith(searchTerm.toLowerCase())).length : availableCount;
     console.log('📊 Available packages counter debug:', {
       totalAvailableItems,
       selectedCount,
@@ -294,7 +294,8 @@ export const AdditionalPackages: React.FunctionComponent = () => {
       filteredPackagesTotal: filteredPackages.length,
       hasViewedPackagesSelected,
       toggleSelected,
-      searchTerm: searchTerm || '(empty)'
+      searchTerm: searchTerm || '(empty)',
+      note: hasViewedPackagesSelected ? 'Selected packages hidden from Available after viewing Selected toggle' : 'All packages visible in Available until user views Selected toggle'
     });
   }, [totalAvailableItems, selectedCount, hasViewedPackagesSelected, toggleSelected, searchTerm, filteredPackages]);
 
@@ -378,6 +379,11 @@ export const AdditionalPackages: React.FunctionComponent = () => {
         // When "Selected" toggle is active, don't apply search filtering
         // This ensures all selected packages are shown regardless of search term
       } else {
+        // When in "Available" mode, hide selected packages if user has viewed "Selected" toggle
+        if (hasViewedPackagesSelected) {
+          filtered = filtered.filter(pkg => !selectedPackages.has(pkg.name));
+        }
+        
         // Only apply search term filtering when NOT in "Selected" mode
         if (searchTerm) {
           filtered = filtered.filter(pkg => {
@@ -1193,7 +1199,7 @@ export const AdditionalPackages: React.FunctionComponent = () => {
           {enableToggles && !searchInDropdown && (
           <ToggleGroup>
             <ToggleGroupItem
-                text={`Available${searchTerm ? ` (${includedRepoPackages.filter(pkg => !selectedPackages.has(pkg.name) && pkg.name.toLowerCase().startsWith(searchTerm.toLowerCase())).length})` : ''}`}
+                text={`Available${searchTerm ? ` (${includedRepoPackages.filter(pkg => (!hasViewedPackagesSelected || !selectedPackages.has(pkg.name)) && pkg.name.toLowerCase().startsWith(searchTerm.toLowerCase())).length})` : ''}`}
               buttonId="toggle-available"
               isSelected={toggleSelected === 'toggle-available'}
                 onChange={() => handleAvailableToggle()}
