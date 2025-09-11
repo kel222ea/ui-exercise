@@ -354,14 +354,16 @@ export const AdditionalPackages: React.FunctionComponent = () => {
         if (!hasViewedPackagesSelected) {
           setHasViewedPackagesSelected(true);
         }
-      }
-      
-      // Then apply search term filtering to the filtered results
-      if (searchTerm) {
-        filtered = filtered.filter(pkg => {
-          const nameMatch = pkg.name.toLowerCase().startsWith(searchTerm.toLowerCase());
-          return nameMatch;
-        });
+        // When "Selected" toggle is active, don't apply search filtering
+        // This ensures all selected packages are shown regardless of search term
+      } else {
+        // Only apply search term filtering when NOT in "Selected" mode
+        if (searchTerm) {
+          filtered = filtered.filter(pkg => {
+            const nameMatch = pkg.name.toLowerCase().startsWith(searchTerm.toLowerCase());
+            return nameMatch;
+          });
+        }
       }
       
       console.log('📦 Final filtered packages:', filtered.map(pkg => pkg.name));
@@ -422,14 +424,16 @@ export const AdditionalPackages: React.FunctionComponent = () => {
           if (!hasViewedReposSelected) {
             setHasViewedReposSelected(true);
           }
-        }
-        
-        // Then apply search term filtering to the filtered results
-        if (searchTerm) {
-          filtered = filtered.filter(repo => 
-            repo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-            repo.url.toLowerCase().includes(searchTerm.toLowerCase())
-          );
+          // When "Selected" toggle is active, don't apply search filtering
+          // This ensures all selected repositories are shown regardless of search term
+        } else {
+          // Only apply search term filtering when NOT in "Selected" mode
+          if (searchTerm) {
+            filtered = filtered.filter(repo => 
+              repo.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+              repo.url.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+          }
         }
       }
     }
