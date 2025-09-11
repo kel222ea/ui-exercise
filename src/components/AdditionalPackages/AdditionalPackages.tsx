@@ -263,7 +263,7 @@ export const AdditionalPackages: React.FunctionComponent = () => {
   const [addedRecommendations, setAddedRecommendations] = React.useState<Set<string>>(new Set());
   const [showRecommendations, setShowRecommendations] = React.useState(true);
   const [showSearchRecommendations, setShowSearchRecommendations] = React.useState(false);
-  const [obscurePackageNames, setObscurePackageNames] = React.useState(false);
+  const [obscureNames, setObscureNames] = React.useState(false);
 
   // Computed values for packages
   const selectedCount = selectedPackages.size;
@@ -588,7 +588,7 @@ export const AdditionalPackages: React.FunctionComponent = () => {
 
   // Helper function to get display name for packages
   const getPackageDisplayName = (pkg: Package) => {
-    if (obscurePackageNames) {
+    if (obscureNames) {
       // When obscuring is enabled, show generic names based on selection status
       if (selectedPackages.has(pkg.name)) {
         return 'Selected Package';
@@ -598,6 +598,21 @@ export const AdditionalPackages: React.FunctionComponent = () => {
     } else {
       // When obscuring is disabled, show actual package names
       return pkg.name;
+    }
+  };
+
+  // Helper function to get display name for repositories
+  const getRepositoryDisplayName = (repo: Repository) => {
+    if (obscureNames) {
+      // When obscuring is enabled, show generic names based on selection status
+      if (selectedRepositories.has(repo.id)) {
+        return 'Selected Repository';
+      } else {
+        return 'Available Repository';
+      }
+    } else {
+      // When obscuring is disabled, show actual repository names
+      return repo.name;
     }
   };
 
@@ -741,7 +756,7 @@ export const AdditionalPackages: React.FunctionComponent = () => {
                       }}
                     >
                       <div>
-                        <strong>{repo.name}</strong>
+                        <strong>{getRepositoryDisplayName(repo)}</strong>
                         <br />
                         <small style={{ color: '#666' }}>{repo.url}</small>
                       </div>
@@ -862,7 +877,7 @@ export const AdditionalPackages: React.FunctionComponent = () => {
                   <Td>
                     <div>
                       <strong>
-                        {repo.name}
+                        {getRepositoryDisplayName(repo)}
                       </strong>
                       <br />
                       <Button
@@ -1569,19 +1584,19 @@ export const AdditionalPackages: React.FunctionComponent = () => {
                 </label>
               </div>
 
-              {/* Obscure Package Names Toggle */}
+              {/* Obscure Package and Repository Names Toggle */}
               <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
                 <div
                   style={{
                     width: '44px',
                     height: '24px',
-                    backgroundColor: obscurePackageNames ? '#0066cc' : '#ccc',
+                    backgroundColor: obscureNames ? '#0066cc' : '#ccc',
                     borderRadius: '12px',
                     position: 'relative',
                     cursor: 'pointer',
                     transition: 'background-color 0.2s ease'
                   }}
-                  onClick={() => setObscurePackageNames(!obscurePackageNames)}
+                  onClick={() => setObscureNames(!obscureNames)}
                 >
                   <div style={{
                     width: '20px',
@@ -1590,13 +1605,13 @@ export const AdditionalPackages: React.FunctionComponent = () => {
                     borderRadius: '50%',
                     position: 'absolute',
                     top: '2px',
-                    left: obscurePackageNames ? '22px' : '2px',
+                    left: obscureNames ? '22px' : '2px',
                     transition: 'left 0.2s ease',
                     boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                   }} />
                 </div>
                 <label htmlFor="toggle-obscure-names" style={{ fontSize: '14px', fontWeight: '500', cursor: 'pointer' }}>
-                  Obscure Package Names
+                  Obscure Package and Repository Names
                 </label>
               </div>
             </div>
