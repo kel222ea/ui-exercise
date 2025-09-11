@@ -283,15 +283,18 @@ export const AdditionalPackages: React.FunctionComponent = () => {
   // Debug: Track available packages counter logic
   React.useEffect(() => {
     const availableCount = totalAvailableItems - selectedCount;
+    const filteredAvailableCount = filteredPackages.filter(pkg => !selectedPackages.has(pkg.name)).length;
     console.log('📊 Available packages counter debug:', {
       totalAvailableItems,
       selectedCount,
       calculatedAvailableCount: availableCount,
+      filteredAvailableCount,
+      filteredPackagesTotal: filteredPackages.length,
       hasViewedPackagesSelected,
       toggleSelected,
       searchTerm: searchTerm || '(empty)'
     });
-  }, [totalAvailableItems, selectedCount, hasViewedPackagesSelected, toggleSelected, searchTerm]);
+  }, [totalAvailableItems, selectedCount, hasViewedPackagesSelected, toggleSelected, searchTerm, filteredPackages]);
 
   // Current recommendations (excluding already added ones)
   const currentRecommendations = React.useMemo(() => {
@@ -1188,7 +1191,7 @@ export const AdditionalPackages: React.FunctionComponent = () => {
           {enableToggles && !searchInDropdown && (
           <ToggleGroup>
             <ToggleGroupItem
-                text={`Available${searchTerm && filteredPackages.length > 0 ? (hasViewedPackagesSelected ? ` (${Math.max(0, filteredPackages.length - selectedCount)})` : ` (${filteredPackages.length})`) : ''}`}
+                text={`Available${searchTerm && filteredPackages.length > 0 ? (hasViewedPackagesSelected ? ` (${filteredPackages.filter(pkg => !selectedPackages.has(pkg.name)).length})` : ` (${filteredPackages.length})`) : ''}`}
               buttonId="toggle-available"
               isSelected={toggleSelected === 'toggle-available'}
                 onChange={() => handleAvailableToggle()}
