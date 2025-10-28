@@ -5,64 +5,56 @@ import { useLocation, useNavigate } from 'react-router-dom';
 export const AppNavigation: React.FunctionComponent = () => {
   const location = useLocation();
   const navigate = useNavigate();
+  
+  React.useEffect(() => {
+    console.log('🔍 AppNavigation rendered, location:', location.pathname);
+  }, [location]);
+
+  const navItems = [
+    {
+      itemId: 'packages-repositories-demo',
+      title: 'Packages and Repositories Demo',
+      to: '/packages-and-repositories-demo'
+    },
+    {
+      itemId: 'semantic-ui-demo',
+      title: 'Semantic UI Demo',
+      to: '/semantic-ui-demo'
+    }
+  ];
 
   const onNavSelect = (
     _event: React.FormEvent<HTMLInputElement>,
     selectedItem: {
       itemId: string | number;
-      to: string;
     }
   ) => {
-    navigate(selectedItem.to);
+    const item = navItems.find(i => i.itemId === selectedItem.itemId);
+    if (item) {
+      navigate(item.to);
+    }
   };
 
-  const navItems = [
-    {
-      itemId: 'overview',
-      title: 'Overview',
-      to: '/'
-    },
-    {
-      itemId: 'wizard-comparison',
-      title: 'Wizard vs Modal',
-      to: '/wizard-comparison'
-    },
-    {
-      itemId: 'state-management',
-      title: 'State Management',
-      to: '/state-management'
-    },
-    {
-      itemId: 'form-validation',
-      title: 'Form Validation',
-      to: '/form-validation'
-    },
-    {
-      itemId: 'status-indicators',
-      title: 'Status & Progress',
-      to: '/status-indicators'
-    },
-    {
-      itemId: 'data-tables',
-      title: 'Data Tables',
-      to: '/data-tables'
-    }
-  ];
-
   return (
-    <Nav onSelect={onNavSelect} theme="dark">
-      <NavList>
-        {navItems.map((item) => (
-          <NavItem
-            key={item.itemId}
-            itemId={item.itemId}
-            to={item.to}
-            isActive={location.pathname === item.to}
-          >
-            {item.title}
-          </NavItem>
-        ))}
-      </NavList>
-    </Nav>
+    <div style={{ padding: '20px', color: 'white', backgroundColor: '#151515' }}>
+      <div style={{ marginBottom: '10px', fontWeight: 'bold' }}>Navigation</div>
+      <Nav onSelect={onNavSelect} theme="dark" aria-label="Global navigation">
+        <NavList>
+          {navItems.map((item) => {
+            const isActive = location.pathname === item.to || (location.pathname === '/' && item.itemId === 'packages-repositories-demo');
+            return (
+              <NavItem
+                key={item.itemId}
+                itemId={item.itemId}
+                isActive={isActive}
+                style={{ color: 'white' }}
+              >
+                {item.title}
+              </NavItem>
+            );
+          })}
+        </NavList>
+      </Nav>
+    </div>
   );
 };

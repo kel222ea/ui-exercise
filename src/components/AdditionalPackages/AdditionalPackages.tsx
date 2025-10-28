@@ -275,6 +275,7 @@ export const AdditionalPackages: React.FunctionComponent = () => {
   const [showRecommendations, setShowRecommendations] = React.useState(true);
   const [showSearchRecommendations, setShowSearchRecommendations] = React.useState(false);
   const [obscureNames, setObscureNames] = React.useState(false);
+  const [genericRowItems, setGenericRowItems] = React.useState(false);
 
   // Computed values for packages
   const selectedCount = selectedPackages.size;
@@ -518,18 +519,24 @@ export const AdditionalPackages: React.FunctionComponent = () => {
   };
 
   const handleSelectedToggle = () => {
+    console.log('🔵 Selected toggle clicked - Setting hasViewedPackagesSelected');
     setToggleSelected('toggle-selected');
+    setHasViewedPackagesSelected(true);
     setPage(1);
   };
 
   const handlePackageSelect = (event: React.MouseEvent<Element, MouseEvent> | React.KeyboardEvent<Element>, selected: boolean) => {
     const packageName = event.currentTarget.getAttribute('data-package-name');
     if (packageName) {
+      console.log('📦 Package selected:', packageName, 'selected:', selected);
+      console.log('📦 hasViewedPackagesSelected:', hasViewedPackagesSelected);
       const newSelected = new Set(selectedPackages);
       if (selected) {
         newSelected.add(packageName);
+        console.log('📦 Total selected packages:', newSelected.size);
       } else {
         newSelected.delete(packageName);
+        console.log('📦 Total selected packages:', newSelected.size);
       }
       setSelectedPackages(newSelected);
     }
@@ -642,11 +649,19 @@ export const AdditionalPackages: React.FunctionComponent = () => {
   const getPackageDisplayName = (pkg: Package) => {
     if (obscureNames) {
       // When obscuring is enabled, show generic names based on selection status
+      let displayName;
       if (selectedPackages.has(pkg.name)) {
-        return 'Selected Package';
+        displayName = 'Selected Package';
       } else {
-        return 'Available Package';
+        displayName = 'Available Package';
       }
+      
+      // Apply generic row item renaming if toggle is on
+      if (genericRowItems && (displayName.startsWith('Available') || displayName.startsWith('Selected'))) {
+        return 'Row Item';
+      }
+      
+      return displayName;
     } else {
       // When obscuring is disabled, show actual package names
       return pkg.name;
@@ -657,11 +672,19 @@ export const AdditionalPackages: React.FunctionComponent = () => {
   const getRepositoryDisplayName = (repo: Repository) => {
     if (obscureNames) {
       // When obscuring is enabled, show generic names based on selection status
+      let displayName;
       if (selectedRepositories.has(repo.id)) {
-        return 'Selected Repository';
+        displayName = 'Selected Repository';
       } else {
-        return 'Available Repository';
+        displayName = 'Available Repository';
       }
+      
+      // Apply generic row item renaming if toggle is on
+      if (genericRowItems && (displayName.startsWith('Available') || displayName.startsWith('Selected'))) {
+        return 'Row Item';
+      }
+      
+      return displayName;
     } else {
       // When obscuring is disabled, show actual repository names
       return repo.name;
@@ -1110,7 +1133,7 @@ export const AdditionalPackages: React.FunctionComponent = () => {
                           </div>
                           <div style={{ flex: 1 }}>
                             <div style={{ fontWeight: '600', marginBottom: '2px' }}>
-                              {getPackageDisplayName(pkg)} - {pkg.summary}
+                              {getPackageDisplayName(pkg)} - {obscureNames && genericRowItems ? 'Row Item' : pkg.summary}
                             </div>
                           </div>
                           <span style={{ 
@@ -1155,7 +1178,7 @@ export const AdditionalPackages: React.FunctionComponent = () => {
                       <div>
                         <strong>{getPackageDisplayName(pkg)}</strong>
                         <br />
-                        <small style={{ color: '#666' }}>{pkg.summary}</small>
+                        <small style={{ color: '#666' }}>{obscureNames && genericRowItems ? 'Row Item' : pkg.summary}</small>
                       </div>
                       <span style={{ 
                         color: isAlreadySelected ? '#999' : '#0066cc', 
@@ -1273,8 +1296,8 @@ export const AdditionalPackages: React.FunctionComponent = () => {
                   </Td>
                     )}
                     <Td>{getPackageDisplayName(pkg)}</Td>
-                    <Td>{pkg.source}</Td>
-                    <Td>{pkg.summary}</Td>
+                    <Td>{obscureNames && genericRowItems ? 'Row Item' : pkg.source}</Td>
+                    <Td>{obscureNames && genericRowItems ? 'Row Item' : pkg.summary}</Td>
                     {!enableCheckboxes && (
                       <Td>
                         <Button
@@ -1355,8 +1378,8 @@ export const AdditionalPackages: React.FunctionComponent = () => {
                   {currentRecommendations.map((pkg) => (
                     <Tr key={pkg.name}>
                       <Td>{getPackageDisplayName(pkg)}</Td>
-                      <Td>{pkg.source}</Td>
-                      <Td>{pkg.summary}</Td>
+                      <Td>{obscureNames && genericRowItems ? 'Row Item' : pkg.source}</Td>
+                      <Td>{obscureNames && genericRowItems ? 'Row Item' : pkg.summary}</Td>
                       <Td>
                         {/* Add functionality removed - not part of design system */}
                       </Td>
@@ -1373,29 +1396,15 @@ export const AdditionalPackages: React.FunctionComponent = () => {
 
   return (
     <div style={{
-      position: 'fixed',
-      top: 0,
-      left: 0,
-      right: 0,
-      bottom: 0,
-      backgroundColor: 'rgba(0, 0, 0, 0.5)',
+      backgroundColor: 'white',
+      borderRadius: '8px',
+      boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
+      width: '100%',
+      minHeight: '800px',
+      overflow: 'auto',
       display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center',
-      zIndex: 1000
+      flexDirection: 'column'
     }}>
-      <div style={{
-        backgroundColor: 'white',
-        borderRadius: '8px',
-        boxShadow: '0 4px 20px rgba(0, 0, 0, 0.15)',
-        maxWidth: '90vw',
-        maxHeight: '90vh',
-        width: '1400px',
-        height: '800px',
-        overflow: 'auto',
-        display: 'flex',
-        flexDirection: 'column'
-      }}>
         <div style={{ display: 'flex', flexDirection: 'column', flex: 1, overflow: 'hidden' }}>
           {/* Top Control Panel */}
           <div style={{
@@ -1666,6 +1675,37 @@ export const AdditionalPackages: React.FunctionComponent = () => {
                   Obscure Package and Repository Names
                 </label>
               </div>
+
+              {/* Generic Row Item Toggle */}
+              <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+                <div
+                  style={{
+                    width: '44px',
+                    height: '24px',
+                    backgroundColor: genericRowItems ? '#0066cc' : '#ccc',
+                    borderRadius: '12px',
+                    position: 'relative',
+                    cursor: 'pointer',
+                    transition: 'background-color 0.2s ease'
+                  }}
+                  onClick={() => setGenericRowItems(!genericRowItems)}
+                >
+                  <div style={{
+                    width: '20px',
+                    height: '20px',
+                    backgroundColor: 'white',
+                    borderRadius: '50%',
+                    position: 'absolute',
+                    top: '2px',
+                    left: genericRowItems ? '22px' : '2px',
+                    transition: 'left 0.2s ease',
+                    boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                  }} />
+                </div>
+                <label htmlFor="toggle-generic-row-items" style={{ fontSize: '14px', fontWeight: '500', cursor: 'pointer' }}>
+                  Rename Available/Selected to Row Item
+                </label>
+              </div>
             </div>
           </div>
 
@@ -1799,7 +1839,6 @@ export const AdditionalPackages: React.FunctionComponent = () => {
                 </>
               )}
           </div>
-        </div>
         </div>
       </div>
     </div>
