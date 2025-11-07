@@ -17,6 +17,11 @@ export const AppNavigation: React.FunctionComponent = () => {
       to: '/packages-and-repositories-demo'
     },
     {
+      itemId: 'code-comparison-test',
+      title: 'Code Comparison Test',
+      to: '/code-comparison-test'
+    },
+    {
       itemId: 'semantic-ui-demo',
       title: 'Semantic UI Demo',
       to: '/semantic-ui-demo'
@@ -41,7 +46,9 @@ export const AppNavigation: React.FunctionComponent = () => {
       <Nav onSelect={onNavSelect} theme="dark" aria-label="Global navigation">
         <NavList>
           {navItems.map((item) => {
-            const isActive = location.pathname === item.to || (location.pathname === '/' && item.itemId === 'packages-repositories-demo');
+            const isActive = 
+              location.pathname === item.to || 
+              (location.pathname === '/' && item.itemId === 'packages-repositories-demo');
             return (
               <NavItem
                 key={item.itemId}
